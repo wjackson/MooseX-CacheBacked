@@ -1,6 +1,8 @@
 package MooseX::CacheBacked::Cache::Hash;
 
-use Moose::Role;
+use Moose;
+
+with 'MooseX::CacheBacked::Cache';
 
 has store => (
     is      => 'ro',
@@ -11,17 +13,12 @@ has store => (
 
 sub get_attr {
     my ($self, $k) = @_;
-    return $self->store->{$self->id}->{$k};
+    return $self->store->{$k};
 }
 
 sub set_attr {
     my ($self, $k, $v) = @_;
-    my $id = $self->id;
-
-    confess 'No value for attribute id'
-        if !defined $id;
-
-    $self->store->{$self->id}->{$k} = $v;
+    $self->store->{$k} = $v;
     return;
 }
 
