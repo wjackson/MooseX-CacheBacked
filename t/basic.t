@@ -30,18 +30,19 @@ is $c->size,  '10',   'set by writer';
 is_deeply
     $c,
     {
+        id => '1234',
         cache => {
             store => {
-                color => 'blue',
-                size  => 10,
-                id => 1234,
+                '1234:color' => 'blue',
+                '1234:size'  => 10,
+                '1234:id'    => 1234,
             },
         },
     },
     'backend';
 
 ## modify the backend value
-$c->{cache}->{store}->{size}++;
+$c->{cache}->{store}->{'1234:size'}++;
 is $c->size, '11', 'set through backend';
 
 done_testing;

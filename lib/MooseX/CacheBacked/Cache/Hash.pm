@@ -11,14 +11,16 @@ has store => (
     lazy    => 1,
 );
 
-sub get_attr {
-    my ($self, $k) = @_;
-    return $self->store->{$k};
+sub get {
+    my ($self, $id, $attr) = @_;
+    my $cache_key = $id . ':' . $attr;
+    return $self->store->{$cache_key};
 }
 
-sub set_attr {
-    my ($self, $k, $v) = @_;
-    $self->store->{$k} = $v;
+sub set {
+    my ($self, $id, $attr, $value) = @_;
+    my $cache_key = $id . ':' . $attr;
+    $self->store->{$cache_key} = $value;
     return;
 }
 
