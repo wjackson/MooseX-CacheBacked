@@ -1,18 +1,11 @@
 use strict;
 use warnings;
 use Test::More;
-use Moose;
+use MooseX::CacheBacked::Cache::Hash;
 
-{
-    package Class;
-    use Moose;
-    with 'MooseX::CacheBacked::Cache::Hash';
+my $cache = MooseX::CacheBacked::Cache::Hash->new();
 
-    has store => (
-        is      => 'ro',
-        isa     => 'HashRef',
-        default => sub { {} },
-    );
-}
+$cache->set(123, 'foo', 'bar');
+is $cache->get(123, 'foo'), 'bar', 'get/set cache value';
 
 done_testing();
