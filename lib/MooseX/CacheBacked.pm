@@ -5,10 +5,13 @@ use warnings;
 our $VERSION = '0.01';
 use 5.10.0;
 use Carp qw(confess);
+use Moose ();
 
 use Moose::Exporter;
 
-Moose::Exporter->setup_import_methods();
+Moose::Exporter->setup_import_methods(
+    also => 'Moose',
+);
 
 sub init_meta {
     my (undef, %args) = @_;
@@ -23,6 +26,8 @@ sub init_meta {
             instance => [ 'MooseX::CacheBacked::Role::Meta::Instance' ],
         },
     );
+
+    Moose::Util::ensure_all_roles($caller, 'MooseX::CacheBacked::Role');
 
     return $caller->meta();
 }

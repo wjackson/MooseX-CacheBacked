@@ -1,50 +1,48 @@
 package MooseX::CacheBacked::Role::Meta::Instance;
 
 use Moose::Role;
-use MooseX::CacheBacked::Cache::Hash;
 
 sub create_instance {
     my ($self) = @_;
     my $instance = {};
-    $instance->{cache} = MooseX::CacheBacked::Cache::Hash->new();
+
+    $instance->{id}            = undef;
+    $instance->{cache}         = undef;
+    $instance->{cache_set_cbs} = [];
 
     return bless $instance, $self->_class_name;
 }
 
 #
-# Non-inline set_slot_value get's called by the contructor (init_args)...
+# Non-inline set_slot_value is called by the contructor (init_args).
 #
-# Can't store in cache until id is set.  However, order of init_args is
-# essentially random so there's no way to guarantee that the id is processed
-# first.  Need to store up a list of pending cache updates until id gets set.
+# Can't persist to cache until id is known.  However, init_args isn't ordered
+# so there's no way to guarantee id is processed first.  To addresss this we
+# queue cache->set operations until id is available.
+#
 sub set_slot_value {
     my ( $self, $instance, $slot_name, $value ) = @_;
 
-    my $cache = $instance->{cache};
-
+    # deal w/ special attrs 'id' and 'cache'
     if ($slot_name eq 'id') {
-        my $id = $value;
-        $instance->{id} = $id;
-
-        # store any queued attributes from before the id attr was available...
-        if (exists $instance->{qd_slot_names}) {
-
-            for my $qd_slot_name (keys %{ $instance->{qd_slot_names} }) {
-                my $qd_value  = $instance->{qd_slot_names}->{$qd_slot_name};
-                $cache->set($id, $qd_slot_name, $qd_value);
-            }
-
-            delete $instance->{qd_slot_names};
-        }
+        $instance->{id} = $value;
+    }
+    if ($slot_name eq 'cache') {
+        $instance->{cache} = $value;
     }
 
-    # id attr has not yet been set so q up the attr/value for later...
-    if (!exists $instance->{id}) {
-        $instance->{qd_slot_names}->{$slot_name} = $value;
-        return;
-    }
+    # queue the cache->set
+    push @{ $instance->{cache_set_cbs} }, sub {
+        $instance->{cache}->set( $instance->{id}, $slot_name, $value );
+    };
 
-    $cache->set($instance->{id}, $slot_name, $value);
+    # delay the cache->set until id and cache are available
+    return if !defined $instance->{id} || !defined $instance->{cache};
+
+    # id and cache are available, execute any pending cache->set operations
+    while (my $set_slot_cb = shift @{ $instance->{cache_set_cbs} }) {
+        $set_slot_cb->();
+    }
 
     return;
 }
