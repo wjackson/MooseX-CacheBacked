@@ -12,7 +12,7 @@ use MooseX::CacheBacked::Cache::Memcached;
     use MooseX::CacheBacked;
 
     has color => ( is => 'rw', isa => 'Str' );
-    has count => ( is => 'rw', isa => 'Int' );
+    has count => ( is => 'rw', isa => 'Int', incr => 1 );
 }
 
 my $memd_server = Test::Memcached->new();
@@ -51,6 +51,12 @@ is $c1->color, 'red', 'write attr from 2nd object';
 $memd->incr('7:count');
 
 is $c1->count, 6, 'attr reflects change in cache';
+
+is $c1->incr_count, 7, 'incr method';
+is $c1->count,      7, 'incr method';
+
+is $c1->decr_count, 6, 'incr method';
+is $c1->count,      6, 'incr method';
 
 $memd_server->stop;
 

@@ -22,13 +22,18 @@ sub set {
     return;
 }
 
-sub _key {
+sub incr {
     my ($self, $id, $attr) = @_;
+    my $new_val = $self->get($id, $attr) + 1;
+    $self->set($id, $attr, $new_val);
+    return $new_val;
+}
 
-    confess q{Argument 'id' isn't defined}   if !defined $id;
-    confess q{Argument 'attr' isn't defined} if !defined $attr;
-
-    return $id . ':' . $attr;
+sub decr {
+    my ($self, $id, $attr) = @_;
+    my $new_val = $self->get($id, $attr) - 1;
+    $self->set($id, $attr, $new_val);
+    return $new_val;
 }
 
 1;

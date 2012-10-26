@@ -23,7 +23,8 @@ sub init_meta {
     Moose::Util::MetaRole::apply_metaroles(
         for => $caller,
         class_metaroles => {
-            instance => [ 'MooseX::CacheBacked::Role::Meta::Instance' ],
+            instance  => [ 'MooseX::CacheBacked::Role::Meta::Instance' ],
+            attribute => [ 'MooseX::CacheBacked::Role::Meta::Attribute' ],
         },
     );
 

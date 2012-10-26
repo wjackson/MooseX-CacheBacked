@@ -9,7 +9,7 @@ use MooseX::CacheBacked::Cache::Hash;
     use MooseX::CacheBacked;
 
     has color => ( is => 'rw', isa => 'Str' );
-    has size  => ( is => 'rw', isa => 'Int' );
+    has size  => ( is => 'rw', isa => 'Int', incr => 1 );
 }
 
 my $cache = MooseX::CacheBacked::Cache::Hash->new;
@@ -38,5 +38,11 @@ is $c->cache->get('1234', 'size'),  '10',   'backend size';
 # modify the backend value
 $c->cache->set( '1234', 'size', $c->cache->get('1234', 'size')+1 );
 is $c->size, '11', 'set through backend';
+
+is $c->incr_size, '12', 'increment';
+is $c->size,      '12', 'increment';
+
+is $c->decr_size, '11', 'decrement';
+is $c->size,      '11', 'decrement';
 
 done_testing;

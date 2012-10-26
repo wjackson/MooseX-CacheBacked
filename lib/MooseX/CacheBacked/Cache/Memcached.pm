@@ -19,4 +19,16 @@ sub set {
     return;
 }
 
+sub incr {
+    my ($self, $id, $attr) = @_;
+    my $key = $self->_key($id, $attr);
+    return $self->memd->incr($key);
+}
+
+sub decr {
+    my ($self, $id, $attr) = @_;
+    my $key = $self->_key($id, $attr);
+    return $self->memd->decr($key);
+}
+
 1;
