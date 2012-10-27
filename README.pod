@@ -1,42 +1,3 @@
-package MooseX::CacheBacked;
-use strict;
-use warnings;
-
-our $VERSION = '0.01';
-use v5.10;
-use Carp qw(confess);
-use Moose ();
-
-use Moose::Exporter;
-
-Moose::Exporter->setup_import_methods(
-    also => 'Moose',
-);
-
-sub init_meta {
-    my (undef, %args) = @_;
-
-    my $caller = $args{for_class};
-
-    Moose->init_meta(%args);
-
-    Moose::Util::MetaRole::apply_metaroles(
-        for => $caller,
-        class_metaroles => {
-            instance  => [ 'MooseX::CacheBacked::Role::Meta::Instance' ],
-            attribute => [ 'MooseX::CacheBacked::Role::Meta::Attribute' ],
-        },
-    );
-
-    Moose::Util::ensure_all_roles($caller, 'MooseX::CacheBacked::Role');
-
-    return $caller->meta();
-}
-
-1;
-
-__END__
-
 =head1 NAME
 
 MooseX::CacheBacked - back class attributes in a cache
@@ -95,4 +56,6 @@ set to the values of any previously instantiated objects with the same id.
 
     $x->material; # wool
 
+
 =cut
+
